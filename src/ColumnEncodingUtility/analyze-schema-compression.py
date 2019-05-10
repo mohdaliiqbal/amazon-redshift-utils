@@ -197,7 +197,7 @@ def get_pg_conn():
             cleanup(conn)
             return ERROR
 
-        aws_utils.set_search_paths(conn, schema_name, target_schema)
+        aws_utils.set_search_paths(conn, schema_name, target_schema, exclude_external_schemas=True)
 
         if query_group is not None:
             set_query_group = 'set query_group to %s' % query_group
@@ -714,13 +714,13 @@ def analyze(table_info):
                     ident_data = get_identity(default_or_identity)
                     if ident_data is None:
                         default_value = 'default %s' % default_or_identity
-                        non_identity_columns.append(col)
+                        non_identity_columns.append('"%s"' % col)
                     else:
                         default_value = 'identity (%s, %s)' % ident_data
                         has_identity = True
                 else:
                     default_value = ''
-                    non_identity_columns.append(col)
+                    non_identity_columns.append('"%s"' % col)
 
                 # add the formatted column specification
                 encode_columns.extend(['"%s" %s %s %s encode %s %s'
